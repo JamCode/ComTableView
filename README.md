@@ -5,7 +5,7 @@
 
 ## 用法
 
-```
+```objective-c
 #import <UIKit/UIKit.h>
 
 typedef void(^pullCompleted)();
@@ -21,7 +21,7 @@ typedef void(^pullCompleted)();
 
 @interface ComTableViewCtrl : UITableViewController
 
-- (id)init:(BOOL)allowPullDown allowPullDownTitle:(NSString*)allowPullDownTitle allowPullUp:(BOOL)allowPullUp allowPullUpTitle:(NSString*)allowPullUpTitle initLoading:(BOOL)loading comDelegate:(id<ComTableViewDelegate>)delegate;
+- (id)init:(BOOL)allowPullDown allowPullUp:(BOOL)allowPullUp initLoading:(BOOL)loading comDelegate:(id<ComTableViewDelegate>)delegate;
 
 @end
 
