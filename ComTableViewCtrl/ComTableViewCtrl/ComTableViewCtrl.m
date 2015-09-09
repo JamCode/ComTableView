@@ -56,21 +56,12 @@ static int bottomActiveHeight = 30;
     if (initLoading == true) {
         [self pullDown];
     }
-    
-    
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
-    
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
-    
-    
 }
 
 - (void)initAction
 {
-    if ([comTableDelegate respondsToSelector:@selector(initAction)]) {
-        [comTableDelegate initAction];
+    if ([comTableDelegate respondsToSelector:@selector(initAction:)]) {
+        [comTableDelegate initAction:self];
     }else{
         ;
     }
@@ -78,19 +69,27 @@ static int bottomActiveHeight = 30;
 
 - (void)viewWillAppear:(BOOL)animated
 {
-    
+    if ([comTableDelegate respondsToSelector:@selector(tableViewWillAppear:)]) {
+        [comTableDelegate tableViewWillAppear:self];
+    }
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (void)viewWillDisappear:(BOOL)animated
+{
+    if ([comTableDelegate respondsToSelector:@selector(tableViewWillDisappear:)]) {
+        [comTableDelegate tableViewWillDisappear:self];
+    }
 }
 
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     // Return the number of sections.
-    return 1;
+    if ([comTableDelegate respondsToSelector:@selector(sectionNum)]) {
+        return [comTableDelegate sectionNum];
+    }else{
+        return 1;
+    }
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -103,9 +102,32 @@ static int bottomActiveHeight = 30;
     }
 }
 
+
+- (void)forbidPullDown
+{
+    self.refreshControl = nil;
+    pullDown = false;
+}
+
+- (void)forbidPullUp
+{
+    pullUp = false;
+}
+
+
+- (void)allowPullDown
+{
+    self.refreshControl = [[UIRefreshControl alloc] init];
+    [self.refreshControl addTarget:self action:@selector(pullDownAction) forControlEvents:UIControlEventValueChanged];
+    self.refreshControl.tintColor = [UIColor grayColor];
+    self.refreshControl.attributedTitle = [[NSAttributedString alloc] initWithString:@""];
+    pullDown = YES;
+}
+
 - (void)allowPullUp
 {
     [self setBottomActive];
+    pullUp = YES;
 }
 
 - (void)setBottomActive
@@ -124,28 +146,6 @@ static int bottomActiveHeight = 30;
     [self.tableView.tableFooterView addSubview:bottomActive];
 }
 
-//- (void)setBottomTitle:(NSString*)title
-//{
-//    
-//    if (self.tableView.contentSize.height>ScreenHeight) {
-//        
-////        [self.tableView.tableFooterView addSubview:[[UIView alloc] initWithFrame:CGRectMake(0, 0, <#CGFloat width#>, )]];
-//    }
-//    
-//    UILabel* bottomLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, bottomActiveHeight)];
-//    bottomLabel.text = title;
-//    bottomLabel.textAlignment = NSTextAlignmentCenter;
-//    bottomLabel.textColor = [UIColor grayColor];
-//    
-//    for (UIView* view in self.tableView.tableFooterView.subviews) {
-//        [view removeFromSuperview];
-//    }
-//    
-//    [self.tableView.tableFooterView addSubview:bottomLabel];
-//    
-//}
-
-
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     if (pullUp == YES) {
@@ -160,7 +160,7 @@ static int bottomActiveHeight = 30;
             return;
         }
         
-        if((maximumOffset - currentOffset)<-40.0&&maximumOffset>bounds.size.height){
+        if((currentOffset - maximumOffset)>64.0&&maximumOffset>bounds.size.height){
             
             [bottomActive startAnimating];
             [self pullUpAction];
@@ -169,6 +169,19 @@ static int bottomActiveHeight = 30;
     }
 }
 
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    if ([comTableDelegate respondsToSelector:@selector(scrollViewWillBeginDragging:)]) {
+        [comTableDelegate scrollViewWillBeginDragging:scrollView];
+    }
+}
+
+- (void)refreshNew
+{
+    [self.tableView setContentOffset:CGPointMake(0, -64) animated:NO];
+    [self pullDown];
+    //[self performSelector:@selector(pullDown) withObject:nil afterDelay:0.5];
+}
 
 - (void)pullDown
 {
@@ -180,14 +193,7 @@ static int bottomActiveHeight = 30;
     }
 }
 
-- (void)allowPullDown
-{
-    self.refreshControl = [[UIRefreshControl alloc] init];
-    [self.refreshControl addTarget:self action:@selector(pullDownAction) forControlEvents:UIControlEventValueChanged];
-    self.refreshControl.tintColor = [UIColor grayColor];
-    self.refreshControl.attributedTitle = [[NSAttributedString alloc] initWithString:@""];
-    
-}
+
 
 - (void)pullUpAction
 {
@@ -234,8 +240,8 @@ static int bottomActiveHeight = 30;
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if ([comTableDelegate respondsToSelector:@selector(cellHeight)]) {
-        return [comTableDelegate cellHeight];
+    if ([comTableDelegate respondsToSelector:@selector(cellHeight:indexPath:)]) {
+        return [comTableDelegate cellHeight:tableView indexPath:indexPath];
     }else{
         return 44;
     }
@@ -255,7 +261,7 @@ static int bottomActiveHeight = 30;
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if ([comTableDelegate respondsToSelector:@selector(didSelectedCell:IndexPath:)]) {
-        return [comTableDelegate didSelectedCell:tableView IndexPath:indexPath];
+        return [comTableDelegate didSelectedCell:self IndexPath:indexPath];
     }else{
         //no select action
         ;
