@@ -33,7 +33,7 @@ typedef void(^pullCompleted)();
 
 - (void)pullDown; //下拉加载
 
-- (void)refreshNew;
+- (void)refreshNew; //
 
 - (void)forbidPullDown; //禁用下拉加载
 - (void)allowPullDow; //允许下拉加载
