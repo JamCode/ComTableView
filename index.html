@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Comtableview by JamCode</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Comtableview</h1>
+      <h2 class="project-tagline">ios通用tableview模块</h2>
+      <a href="https://github.com/JamCode/ComTableView" class="btn">View on GitHub</a>
+      <a href="https://github.com/JamCode/ComTableView/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/JamCode/ComTableView/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="comtableview" class="anchor" href="#comtableview" aria-hidden="true"><span class="octicon octicon-link"></span></a>ComTableView</h1>
+
+<ul>
+<li>实现通用的tableview下拉刷新，上拉刷新</li>
+<li>开发者只需要定义上拉和下拉产生的数据加载事件</li>
+<li>开发者需要自定义需要显示的table cell，定义cell的点击事件</li>
+<li>开发者可以自定义滚动产生的事件和其他tableview事件响应</li>
+<li>开发者可以启用或禁用上拉下拉刷新
+## 用法</li>
+</ul>
+
+<div class="highlight highlight-objective-c"><pre>#<span class="pl-k">import</span> <span class="pl-s"><span class="pl-pds">&lt;</span>UIKit/UIKit.h<span class="pl-pds">&gt;</span></span>
+
+<span class="pl-k">typedef</span> <span class="pl-en">void</span>(^pullCompleted)();
+<span class="pl-k">@class</span> ComTableViewCtrl;
+
+<span class="pl-k">@protocol</span> <span class="pl-en">ComTableViewDelegate</span> &lt;NSObject&gt;
+
+<span class="pl-k">@optional</span>
+- (<span class="pl-k">void</span>)<span class="pl-en">pullUpAction</span><span class="pl-en">:</span>(pullCompleted)<span class="pl-smi">completedBlock</span>; <span class="pl-c">//上拉响应函数</span>
+- (<span class="pl-k">void</span>)<span class="pl-en">pullDownAction</span><span class="pl-en">:</span>(pullCompleted)<span class="pl-smi">completedBlock</span>; <span class="pl-c">//下拉响应函数</span>
+- (<span class="pl-k">NSInteger</span>)<span class="pl-en">rowNum</span>;
+- (<span class="pl-k">NSInteger</span>)<span class="pl-en">sectionNum</span>;
+- (UITableViewCell*)<span class="pl-en">generateCell</span><span class="pl-en">:</span>(UITableView*)<span class="pl-smi">tableview</span> <span class="pl-en">indexPath</span><span class="pl-en">:</span>(<span class="pl-c1">NSIndexPath</span> *)<span class="pl-smi">indexPath</span>;
+- (<span class="pl-k">void</span>)<span class="pl-en">didSelectedCell</span><span class="pl-en">:</span>(ComTableViewCtrl*)<span class="pl-smi">comTableViewCtrl</span> <span class="pl-en">IndexPath</span><span class="pl-en">:</span>(<span class="pl-c1">NSIndexPath</span> *)<span class="pl-smi">indexPath</span>;
+- (<span class="pl-k">void</span>)<span class="pl-en">initAction</span><span class="pl-en">:</span>(ComTableViewCtrl*)<span class="pl-smi">comTableViewCtrl</span>;
+- (<span class="pl-c1">CGFloat</span>)<span class="pl-en">cellHeight</span><span class="pl-en">:</span>(UITableView*)<span class="pl-smi">tableView</span> <span class="pl-en">indexPath</span><span class="pl-en">:</span>(<span class="pl-c1">NSIndexPath</span> *)<span class="pl-smi">indexPath</span>;
+- (<span class="pl-k">void</span>)<span class="pl-en">tableViewWillAppear</span><span class="pl-en">:</span>(ComTableViewCtrl*)<span class="pl-smi">comTableViewCtrl</span>;
+- (<span class="pl-k">void</span>)<span class="pl-en">tableViewWillDisappear</span><span class="pl-en">:</span>(ComTableViewCtrl*)<span class="pl-smi">comTableViewCtrl</span>;
+- (<span class="pl-k">void</span>)<span class="pl-en">scrollViewWillBeginDragging</span><span class="pl-en">:</span>(UIScrollView *)<span class="pl-smi">scrollView</span>;
+<span class="pl-k">@end</span>
+
+<span class="pl-k">@interface</span> <span class="pl-en">ComTableViewCtrl</span> : <span class="pl-e">UITableViewController</span>
+
+- (<span class="pl-k">id</span>)<span class="pl-en">init</span><span class="pl-en">:</span>(<span class="pl-k">BOOL</span>)<span class="pl-smi">allowPullDown</span> <span class="pl-en">allowPullUp</span><span class="pl-en">:</span>(<span class="pl-k">BOOL</span>)<span class="pl-smi">allowPullUp</span> <span class="pl-en">initLoading</span><span class="pl-en">:</span>(<span class="pl-k">BOOL</span>)<span class="pl-smi">loading</span> <span class="pl-en">comDelegate</span><span class="pl-en">:</span>(<span class="pl-k">id</span>&lt;ComTableViewDelegate&gt;)<span class="pl-smi">delegate</span>;
+
+- (<span class="pl-k">void</span>)<span class="pl-en">pullDown</span>; <span class="pl-c">//下拉加载</span>
+
+- (<span class="pl-k">void</span>)<span class="pl-en">refreshNew</span>;<span class="pl-c">//回到顶端下拉加载</span>
+
+- (<span class="pl-k">void</span>)<span class="pl-en">forbidPullDown</span>; <span class="pl-c">//禁用下拉加载</span>
+- (<span class="pl-k">void</span>)<span class="pl-en">allowPullDow</span>; <span class="pl-c">//允许下拉加载</span>
+
+- (<span class="pl-k">void</span>)<span class="pl-en">forbidPullUp</span>;<span class="pl-c">//禁用上拉加载</span>
+- (<span class="pl-k">void</span>)<span class="pl-en">allowPullUp</span>;<span class="pl-c">//允许上拉加载</span>
+
+<span class="pl-k">@end</span></pre></div>
+
+<p>开发者实现ComTableViewDelegate接口
+初始化ComTableViewCtrl时，定义是否运行下拉，上拉刷新动作，定义是否首次加载时，进行下拉刷新动作</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/JamCode/ComTableView">Comtableview</a> is maintained by <a href="https://github.com/JamCode">JamCode</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
